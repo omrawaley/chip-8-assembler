@@ -93,6 +93,10 @@ g++ chip8asm.cpp -o chip8asm -std=c++17
 ./chip8asm <path-to-asm> <name-of-binary>
 ```
 
+## Examples
+
+See the [examples](https://github.com/omrawaley/chip-8-assembler/tree/main/examples) folder for demos and sample programs.
+
 ## Todo
 
 - Remove `3NNN` and either preprocess labels or enable `JMP` to be used for labels as well as 12-bit addresses.
