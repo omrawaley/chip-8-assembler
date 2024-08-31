@@ -95,7 +95,7 @@ g++ chip8asm.cpp -o chip8asm -std=c++17
 
 ## Todo
 
-- Remove `3NNN` and either preprocess labels or enable `JMP` to be used for 12-bit addresses as well as labels.
+- Remove `3NNN` and either preprocess labels or enable `JMP` to be used for labels as well as 12-bit addresses.
 - Add a preprocessor
 - Add text replacement (like #define)
 
