@@ -1,4 +1,4 @@
-; Calculate Nth Fibonacci Number (output in reg 1)
+; Calculate Nth Fibonacci Number (output in reg A)
 
 LDRB 0 0        ;200    Initialise reg 0 with 0
 LDRB 1 1        ;202    Initialise reg 1 with 1
