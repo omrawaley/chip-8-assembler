@@ -362,9 +362,6 @@ int main(int argc, char* argv[])
 
     preprocessProgram(programBuffer);
 
-    programBuffer.clear();
-    programBuffer.seekg(0);
-
     collectLabels(programBuffer);
 
     programBuffer.clear();
