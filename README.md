@@ -70,13 +70,13 @@ Labels can be used to mark sections of code which makes jumping easier.
 
 Labels are denoted using a period (`.`).
 
-When referring to an existing label in a `JMPL` instruction, do not include the period.
+When referring to an existing label in a `JMP` instruction, do not include the period.
 
 ```
 .add
 ADDRR 3 4   ;0x200  Add reg 3 to reg 4
 
-JMPL add    ;0x202  Jump to 0x200
+JMP add    ;0x202  Jump to 0x200
 ```
 
 ### Definitions
@@ -90,7 +90,12 @@ If you have ever used C or C++, definitions are essentially `#define`.
 ```
 #count A
 
-SERB 3 count
+.start
+SERB 3 count  ;0x200 Skip the next instruction if reg 3's value is A
+
+LDRB 3 count  ;0x202 Load reg 3 with A
+
+JMP start     ;0x204 Jump to 0x200
 ```
 
 ## Installation
