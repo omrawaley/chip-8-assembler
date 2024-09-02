@@ -101,6 +101,7 @@ See the [examples](https://github.com/omrawaley/chip-8-assembler/tree/main/examp
 - ~~Add a preprocessor~~
 - ~~Add text replacement (like #define)~~
 - Refine the file structure to simplify `main.cpp`
+- Add better error handling (e.g. "multiple definitions of label," "definition does not exist")
 
 ## License
 
