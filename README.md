@@ -15,9 +15,8 @@ A basic assembler with labels that can be used to create programs for the Chip-8
 | :-------- | :------- | :------------------------- |
 | `CLS` | `00E0` | None |
 | `RET` | `00EE` | None |
-| `JMP` | `1NNN` | Addr |
+| `JMP` | `1NNN` | Addr OR Label |
 | `CALL` | `2NNN` | Addr |
-| `JMPL` | `3NNN`* | Label |
 | `SERB` | `3XNN` | Reg, Byte |
 | `SNERB` | `4XNN` | Reg, Byte |
 | `SERR` | `5XY0` | Reg, Reg |
@@ -49,7 +48,6 @@ A basic assembler with labels that can be used to create programs for the Chip-8
 | `LDMIR` | `FX55` | Reg |
 | `LDRMI` | `FX65` | Reg |
 
-*3NNN is not a real Chip-8 opcode. This gets converted to 1NNN where NNN is the address of a label.
 ## Features
 
 ### Comments
@@ -99,9 +97,10 @@ See the [examples](https://github.com/omrawaley/chip-8-assembler/tree/main/examp
 
 ## Todo
 
-- Remove `3NNN` and either preprocess labels or enable `JMP` to be used for labels as well as 12-bit addresses.
-- Add a preprocessor
-- Add text replacement (like #define)
+- ~~Remove `3NNN` and either preprocess labels or enable `JMP` to be used for labels as well as 12-bit addresses.~~
+- ~~Add a preprocessor~~
+- ~~Add text replacement (like #define)~~
+- Refine on the file structure to simplify `main.cpp`
 
 ## License
 
