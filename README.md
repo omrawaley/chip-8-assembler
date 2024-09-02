@@ -78,6 +78,21 @@ ADDRR 3 4   ;0x200  Add reg 3 to reg 4
 
 JMPL add    ;0x202  Jump to 0x200
 ```
+
+### Definitions
+
+Definitions can be used to assign a name to a value which the preprocessor then replaces with the actual value.
+
+Definitions are denoted using a hashtag (`#`).
+
+If you have ever used C or C++, definitions are essentially `#define`.
+
+```
+#count A
+
+SERB 3 count
+```
+
 ## Installation
 
 Compile with `make`.
@@ -102,6 +117,7 @@ See the [examples](https://github.com/omrawaley/chip-8-assembler/tree/main/examp
 - ~~Add text replacement (like #define)~~
 - Refine the file structure to simplify `main.cpp`
 - Add better error handling (e.g. "multiple definitions of label," "definition does not exist")
+- Allow arithmetic operators to work on definitions
 
 ## License
 
