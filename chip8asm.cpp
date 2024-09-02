@@ -19,6 +19,7 @@
 #include <string>
 #include <sstream>
 #include <unordered_map>
+#include <regex>
 
 enum class Opcode : uint8_t
 {
@@ -26,7 +27,6 @@ enum class Opcode : uint8_t
     _00EE,
     _1NNN,
     _2NNN,
-    _3NNN,  // Not a real Chip-8 instruction; this gets converted into a 1NNN with a label address
     _3XNN,
     _4XNN,
     _5XY0,
@@ -65,7 +65,6 @@ const std::unordered_map<std::string, Opcode> instructions =
     {"RET", Opcode::_00EE},
     {"JMP", Opcode::_1NNN},
     {"CALL", Opcode::_2NNN},
-    {"JMPL", Opcode::_3NNN},    // Not a real Chip-8 instruction; this gets converted into a 1NNN with a label address
     {"SERB", Opcode::_3XNN},
     {"SNERB", Opcode::_4XNN},
     {"SERR", Opcode::_5XY0},
@@ -98,6 +97,82 @@ const std::unordered_map<std::string, Opcode> instructions =
     {"LDRMI", Opcode::_FX65}
 };
 
+std::unordered_map<std::string, uint16_t> labels;
+
+std::vector<std::string> getTokens(std::string line)
+{
+    std::vector<std::string> tokens;
+    std::string token;
+
+    std::stringstream stream(line);
+    while(stream >> token)
+    {
+        tokens.push_back(token);
+    }
+
+    return tokens;
+}
+
+void collectLabels(std::stringstream& program)
+{
+    uint16_t address = 0x200;
+
+    std::string line;
+    while(std::getline(program, line))
+    {
+        if(line.empty() || line.at(0) == ';' || line.at(0) == '#' || line.at(0) == '\n' || line.at(0) == ' ')
+            continue;
+
+        std::vector<std::string> tokens = getTokens(line);
+
+        if(line.at(0) == '.')
+        {
+            labels.insert(std::make_pair(tokens.at(0).substr(1), address));
+        }
+        else
+        {
+            address += 2;
+        }
+    }
+}
+
+std::string replaceText(const std::string& input, const std::string& find, const std::string& replace)
+{
+    std::string result = std::regex_replace(input, std::regex("\\b" + find + "\\b"), replace);
+
+    return result;
+}
+
+void preprocessProgram(std::stringstream& program)
+{
+    std::string content = program.str();
+    std::istringstream stream(content);
+
+    bool modified = false;
+
+    std::string line;
+    while(std::getline(program, line))
+    {
+        if(line.empty() || line.at(0) == ';' || line.at(0) == '.' || line.at(0) == '\n' || line.at(0) == ' ')
+            continue;
+
+        std::vector<std::string> tokens = getTokens(line);
+
+        if(line.at(0) == '#')
+        {
+            content = replaceText(content, tokens.at(0).substr(1), tokens.at(1));
+
+            modified = true;
+        }
+    }
+
+    if(modified)
+    {
+        program.str(content);
+        program.clear();
+    }
+}
+
 std::string assembleLine(std::string line)
 {
     std::basic_string<uint8_t> bytes;
@@ -116,22 +191,11 @@ std::string assembleLine(std::string line)
     return std::string(std::begin(bytes), std::end(bytes));
 }
 
-std::string parseLine(std::string line, std::ifstream& program, std::streampos oldPos)
+std::string parseLine(std::string line, std::stringstream& program, std::streampos oldPos)
 {
-    std::stringstream stream(line);
-    std::string token;
-
-    std::vector<std::string> tokens;
+    std::vector<std::string> tokens = getTokens(line);
 
     std::stringstream parsedLine;
-
-    while(stream >> token)
-    {
-        if(token.at(0) == ';')
-            break;
-
-        tokens.push_back(token);
-    }
 
     switch(instructions.at(tokens.at(0)))
     {
@@ -144,46 +208,18 @@ std::string parseLine(std::string line, std::ifstream& program, std::streampos o
             break;
 
         case Opcode::_1NNN:
+            if(labels.find(tokens.at(1)) != labels.end())
+            {
+                parsedLine << "1" << std::hex << labels.at(tokens.at(1));
+                break;
+            }
+
             parsedLine << "1" << tokens.at(1);
             break;
 
         case Opcode::_2NNN:
             parsedLine << "2" << tokens.at(1);
             break;
-
-        case Opcode::_3NNN:
-        {
-            uint16_t lineCounter = 0;
-
-            uint16_t address = 0;
-
-            program.clear();
-            program.seekg(0);
-
-            std::string line;
-            while(std::getline(program, line))
-            {
-                if(line.empty() || line.at(0) == ';' || line.at(0) == '\n' || line.at(0) == ' ')
-                    continue;
-
-                if(line.at(0) != '.')
-                {
-                    ++lineCounter;
-                    continue;
-                }
-
-                if(line.substr(1, line.length() - 1) == tokens.at(1))
-                {
-                    address = (lineCounter * 2) + 0x200;
-                    break;
-                }
-            }
-
-            program.seekg(oldPos);
-
-            parsedLine << "1" << std::hex << address;
-            break;
-        }
 
         case Opcode::_3XNN:
             parsedLine << "3" << tokens.at(1) << tokens.at(2);
@@ -318,21 +354,36 @@ int main(int argc, char* argv[])
     }
 
     std::ifstream asmProgram(argv[1], std::ios::in);
+
+    std::stringstream programBuffer;
+    programBuffer << asmProgram.rdbuf();
+
+    asmProgram.close();
+
+    preprocessProgram(programBuffer);
+
+    programBuffer.clear();
+    programBuffer.seekg(0);
+
+    collectLabels(programBuffer);
+
+    programBuffer.clear();
+    programBuffer.seekg(0);
+
     std::ofstream binProgram(argv[2], std::ios::out | std::ios::binary);
 
     std::string line;
-    while(std::getline(asmProgram, line))
+    while(std::getline(programBuffer, line))
     {
-        if(line.empty() || line.at(0) == ';' || line.at(0) == '.' || line.at(0) == '\n' || line.at(0) == ' ')
+        if(line.empty() || line.at(0) == ';' || line.at(0) == '.' || line.at(0) == '#' || line.at(0) == '\n' || line.at(0) == ' ')
             continue;
 
-        std::string parsedLine = parseLine(line, asmProgram, asmProgram.tellg());
+        std::string parsedLine = parseLine(line, programBuffer, programBuffer.tellg());
         std::string assembledLine = assembleLine(parsedLine);
 
         binProgram << assembledLine;
     }
 
-    asmProgram.close();
     binProgram.close();
 
     return 0;
