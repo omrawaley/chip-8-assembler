@@ -100,7 +100,7 @@ See the [examples](https://github.com/omrawaley/chip-8-assembler/tree/main/examp
 - ~~Remove `3NNN` and either preprocess labels or enable `JMP` to be used for labels as well as 12-bit addresses.~~
 - ~~Add a preprocessor~~
 - ~~Add text replacement (like #define)~~
-- Refine on the file structure to simplify `main.cpp`
+- Refine the file structure to simplify `main.cpp`
 
 ## License
 
