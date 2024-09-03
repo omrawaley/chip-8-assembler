@@ -76,7 +76,7 @@ When referring to an existing label in a `JMP` instruction, do not include the p
 .add
 ADDRR 3 4   ;0x200  Add reg 3 to reg 4
 
-JMP add    ;0x202  Jump to 0x200
+JMP add     ;0x202  Jump to 0x200
 ```
 
 ### Definitions
@@ -103,10 +103,10 @@ You can also use four arithmetic operators (`+`, `-`, `*`, `/`) with your defini
 Currently, you can only use one operator per definition, but that is subject to change in the near future.
 
 ```
-#a 4        ;        Create a definition named "a" with a value of 4
-#b 2        ;        Create a definition named "b" with a value of 2
+#a 4          ;      Create a definition named "a" with a value of 4
+#b 2          ;      Create a definition named "b" with a value of 2
 
-#sum a + b  ;        Create a definition named "sum" with a value of 6
+#sum a + b    ;      Create a definition named "sum" with a value of 6
 ```
 
 ## Installation
