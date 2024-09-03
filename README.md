@@ -122,7 +122,7 @@ See the [examples](https://github.com/omrawaley/chip-8-assembler/tree/main/examp
 - ~~Add text replacement (like #define)~~
 - Refine the file structure to simplify `main.cpp`
 - Add better error handling (e.g. "multiple definitions of label," "definition does not exist")
-- Allow arithmetic operators to work on definitions
+- ~~Allow arithmetic operators to work on definitions~~
 
 ## License
 
