@@ -97,6 +97,22 @@ const std::unordered_map<std::string, Opcode> instructions =
     {"LDRMI", Opcode::_FX65}
 };
 
+enum class ArithmeticOperation : uint8_t
+{
+    Addition,
+    Subtraction,
+    Multiplication,
+    Division
+};
+
+const std::unordered_map<char, ArithmeticOperation> arithmeticOperations =
+{
+    {'+', ArithmeticOperation::Addition},
+    {'-', ArithmeticOperation::Subtraction},
+    {'*', ArithmeticOperation::Multiplication},
+    {'/', ArithmeticOperation::Division},
+};
+
 std::unordered_map<std::string, uint16_t> labels;
 
 std::vector<std::string> getTokens(std::string line)
@@ -136,6 +152,32 @@ void collectLabels(std::stringstream& program)
     }
 }
 
+template<typename T>
+T performArithmeticOperation(ArithmeticOperation operation, T a, T b)
+{
+    switch(operation)
+    {
+        case ArithmeticOperation::Addition:
+            return a + b;
+            break;
+
+        case ArithmeticOperation::Subtraction:
+            return a - b;
+            break;
+
+        case ArithmeticOperation::Multiplication:
+            return a * b;
+            break;
+
+        case ArithmeticOperation::Division:
+            return a / b;
+            break;
+
+        default:
+            throw std::invalid_argument("Invalid arithmetic operation.");
+    }
+}
+
 std::string replaceText(const std::string& input, const std::string& find, const std::string& replace)
 {
     std::string result = std::regex_replace(input, std::regex("\\b" + find + "\\b"), replace);
@@ -146,30 +188,56 @@ std::string replaceText(const std::string& input, const std::string& find, const
 void preprocessProgram(std::stringstream& program)
 {
     std::string content = program.str();
-    std::istringstream stream(content);
 
     bool modified = false;
 
-    std::string line;
-    while(std::getline(program, line))
+    while(true)
     {
-        if(line.empty() || line.at(0) == ';' || line.at(0) == '.' || line.at(0) == '\n' || line.at(0) == ' ')
-            continue;
+        std::stringstream contentStream(content);
 
-        std::vector<std::string> tokens = getTokens(line);
+        modified = false;
 
-        if(line.at(0) == '#')
+        std::string line;
+        while(std::getline(contentStream, line))
         {
-            content = replaceText(content, tokens.at(0).substr(1), tokens.at(1));
+            if(line.empty() || line.at(0) == ';' || line.at(0) == '.' || line.at(0) == '\n' || line.at(0) == ' ')
+                continue;
 
-            modified = true;
+            std::vector<std::string> tokens = getTokens(line);
+
+            if(line.at(0) == '#')
+            {
+                std::ostringstream value;
+
+                if(tokens.size() > 2)
+                {
+                    uint16_t sum = performArithmeticOperation<uint16_t>(arithmeticOperations.at(tokens.at(2).at(0)), std::stoi(tokens.at(1), 0, 16), std::stoi(tokens.at(3), 0, 16));
+
+                    value << std::hex << sum;
+                }
+                else
+                {
+                    value << tokens.at(1);
+                }
+
+                std::string newContent = replaceText(content, tokens.at(0).substr(1), value.str());
+
+                if(newContent != content)
+                {
+                    content = newContent;
+
+                    modified = true;
+
+                    program.str(content);
+                    program.clear();
+                    
+                    break;
+                }
+            }
         }
-    }
 
-    if(modified)
-    {
-        program.str(content);
-        program.clear();
+        if(!modified)
+            break;
     }
 }
 
@@ -349,8 +417,7 @@ int main(int argc, char* argv[])
 {
     if(argc != 3)
     {
-        std::cerr << "Error: no arguments provided." << std::endl;
-        return 1;
+        throw std::invalid_argument("Not enough arguments provided.");
     }
 
     std::ifstream asmProgram(argv[1], std::ios::in);
