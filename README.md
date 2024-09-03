@@ -88,7 +88,7 @@ Definitions are denoted using a hashtag (`#`).
 If you have ever used C or C++, definitions are essentially `#define`.
 
 ```
-#count A
+#count A      ;      Create a definition named "count" with a value of A
 
 .start
 SERB 3 count  ;0x200 Skip the next instruction if reg 3's value is A
@@ -96,6 +96,17 @@ SERB 3 count  ;0x200 Skip the next instruction if reg 3's value is A
 LDRB 3 count  ;0x202 Load reg 3 with A
 
 JMP start     ;0x204 Jump to 0x200
+```
+
+You can also use four arithmetic operators (`+`, `-`, `*`, `/`) with your definitions.
+
+Currently, you can only use one operator per definition, but that is subject to change in the near future.
+
+```
+#a 4        ;        Create a definition named "a" with a value of 4
+#b 2        ;        Create a definition named "b" with a value of 2
+
+#sum a + b  ;        Create a definition named "sum" with a value of 6
 ```
 
 ## Installation
