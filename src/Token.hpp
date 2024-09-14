@@ -15,6 +15,36 @@ enum class TokenType
     // None,
 };
 
+static std::string tokenTypeToString(TokenType type)
+{
+    std::string string;
+
+    switch(type)
+    {
+        case TokenType::Mnemonic:
+            string = "Mnemonic";
+            break;
+
+        case TokenType::Register:
+            string = "Register";
+            break;
+
+        case TokenType::Hex:
+            string = "Hex literal";
+            break;
+
+        case TokenType::Label:
+            string = "Label";
+            break;
+
+        case TokenType::Eof:
+            string = "EOF";
+            break;
+    }
+
+    return string;
+}
+
 struct Token
 {
     TokenType type;

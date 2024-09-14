@@ -43,9 +43,9 @@ class ErrorAccumulator
             this->errors.push_back(Error(message, line, col));
         }
 
-        void reportUnexpectedOperand(std::string string, int line, int col)
+        void reportUnexpectedOperand(std::string string, TokenType expectedType, TokenType receivedType, int line, int col)
         {
-            std::string message = ErrorAccumulator::getErrorInformation(line, col) + "Unexpected operand " + string;
+            std::string message = ErrorAccumulator::getErrorInformation(line, col) + "Unexpected operand " + string + ". Expected " + tokenTypeToString(expectedType) + "; Received " + tokenTypeToString(receivedType);
 
             this->errors.push_back(Error(message, line, col));
         }

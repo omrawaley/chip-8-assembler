@@ -23,10 +23,10 @@ int main(int argc, char* argv[])
     
     std::vector<Token> tokens;
 
-    while(!lexer.isAtEnd())
-    {
-        tokens.push_back(lexer.readToken());
-    }
+    // while(!lexer.isAtEnd())
+    // {
+    //     tokens.push_back(lexer.readToken());
+    // }
 
     for(auto& token : tokens)
     {

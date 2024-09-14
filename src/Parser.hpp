@@ -35,7 +35,12 @@ class Parser
             std::vector<Token> operandTokens;
 
             for(size_t i = 0; i < static_cast<uint8_t>(mnemonic.operandCount); ++i)
+            {
                 operandTokens.push_back(this->lexer.readToken());
+
+                if(mnemonic.operandTypes.at(i) != operandTokens.at(i).type)
+                    this->errorAccumulator.reportUnexpectedOperand(operandTokens.at(i).lexeme, mnemonic.operandTypes.at(i), operandTokens.at(i).type, sourcePosition.line, sourcePosition.col);
+            }
 
             switch(mnemonic.instruction)
             {
@@ -46,19 +51,6 @@ class Parser
                     break;
 
                 case Instruction::LDRB:
-                    if(operandTokens.at(1).type == mnemonic.operandTypes.at(0))
-                    {
-
-
-                        std::cout << "reg" << "\n";
-                    }
-                    else
-                    {
-
-                    }
-                    break;
-
-                case Instruction::JP:
                     break;
             }
         }
